@@ -208,6 +208,8 @@ public class ForecastFragment extends Fragment {
       for (String forecast : forecasts) {
         forecastAdapter.add(forecast);
       }
+
+      forecastAdapter.notifyDataSetChanged();
     }
   }
 
@@ -245,6 +247,7 @@ public class ForecastFragment extends Fragment {
 
     ArrayList<String> forecasts = new ArrayList<>();
     forecastAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, forecasts);
+    forecastAdapter.setNotifyOnChange(false);
 
     ListView forecastListView = (ListView) view.findViewById(R.id.listView_forecast);
     forecastListView.setAdapter(forecastAdapter);
