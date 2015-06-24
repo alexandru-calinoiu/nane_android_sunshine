@@ -1,11 +1,20 @@
 package nonandroid.nanodegree.sunshine;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class DetailActivity extends AppCompatActivity {
+  public static final String FORECAST_TEXT = "FORECAST_TEXT";
+
+  public static Intent getIntent(Context context, String forecast) {
+    Intent intent = new Intent(context, DetailActivity.class);
+    intent.putExtra(FORECAST_TEXT, forecast);
+    return intent;
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

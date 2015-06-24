@@ -255,18 +255,10 @@ public class ForecastFragment extends Fragment {
     forecastListView.setAdapter(forecastAdapter);
 
     forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      Toast toast = null;
-
       @Override
       public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         String forecast = forecastAdapter.getItem(i);
-
-        if (toast != null) {
-          toast.cancel();
-        }
-
-        toast = Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT);
-        toast.show();
+        startActivity(DetailActivity.getIntent(getActivity(), forecast));
       }
     });
 

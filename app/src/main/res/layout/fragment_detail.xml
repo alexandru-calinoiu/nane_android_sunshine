@@ -9,6 +9,7 @@
                 tools:context="nonandroid.nanodegree.sunshine.DetailActivityFragment">
 
     <TextView
+        android:id="@+id/textview_forecast"
         android:text="@string/hello_world"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
