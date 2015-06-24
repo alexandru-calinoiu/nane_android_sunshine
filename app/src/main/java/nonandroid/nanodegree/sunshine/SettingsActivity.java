@@ -1,6 +1,8 @@
 package nonandroid.nanodegree.sunshine;
 
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -17,6 +19,10 @@ import android.preference.PreferenceManager;
  */
 public class SettingsActivity extends PreferenceActivity
     implements Preference.OnPreferenceChangeListener {
+
+  public static Intent getIntent(Context context) {
+    return new Intent(context, SettingsActivity.class);
+  }
 
   @Override
   public void onCreate(Bundle savedInstanceState) {

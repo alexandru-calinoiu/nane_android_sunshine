@@ -234,7 +234,7 @@ public class ForecastFragment extends Fragment {
     int id = item.getItemId();
 
     if (id == R.id.action_refresh) {
-      new FetchWeatherTask().execute("94043");
+      fetchForecast();
       return true;
     }
 
@@ -262,6 +262,12 @@ public class ForecastFragment extends Fragment {
       }
     });
 
+    fetchForecast();
+
     return view;
+  }
+
+  private void fetchForecast() {
+    new FetchWeatherTask().execute("94043");
   }
 }
