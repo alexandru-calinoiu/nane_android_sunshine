@@ -36,8 +36,13 @@ public class MainActivity extends AppCompatActivity {
       startActivity(SettingsActivity.getIntent(this));
       return true;
     } else if (id == R.id.action_show_location) {
+      Uri mapsUri = Uri.parse("geo:0,0?")
+          .buildUpon()
+          .appendQueryParameter("q", SettingsActivity.getLocation(this))
+          .build();
+
       Intent intent = new Intent(Intent.ACTION_VIEW);
-      intent.setData(Uri.parse("geo:0,0?q=" + SettingsActivity.getLocation(this)));
+      intent.setData(mapsUri);
       if (intent.resolveActivity(getPackageManager()) != null) {
         startActivity(intent);
       }
