@@ -1,5 +1,8 @@
 package nonandroid.nanodegree.sunshine;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -32,6 +35,12 @@ public class MainActivity extends AppCompatActivity {
     if (id == R.id.action_settings) {
       startActivity(SettingsActivity.getIntent(this));
       return true;
+    } else if (id == R.id.action_show_location) {
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setData(Uri.parse("geo:0,0?q=" + SettingsActivity.getLocation(this)));
+      if (intent.resolveActivity(getPackageManager()) != null) {
+        startActivity(intent);
+      }
     }
 
     return super.onOptionsItemSelected(item);

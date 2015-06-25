@@ -277,13 +277,12 @@ public class ForecastFragment extends Fragment {
   }
 
   private String getPostalCode() {
-    SharedPreferences sharedPref = getSharedPreferences();
-    return sharedPref.getString(getString(R.string.pref_location), getString(R.string.pref_location_default));
+    return SettingsActivity.getLocation(getActivity());
   }
 
   private double convertTemperature(double celsius) {
     String metric = getString(R.string.pref_unit_default);
-    String unit = getSharedPreferences().getString(getString(R.string.pref_unit), metric);
+    String unit = SettingsActivity.getUnit(getActivity());
 
     if (unit.equals(metric)) {
       return celsius;
@@ -291,9 +290,5 @@ public class ForecastFragment extends Fragment {
     else {
       return ((celsius * 9) / 5) + 32;
     }
-  }
-
-  private SharedPreferences getSharedPreferences() {
-    return PreferenceManager.getDefaultSharedPreferences(getActivity());
   }
 }

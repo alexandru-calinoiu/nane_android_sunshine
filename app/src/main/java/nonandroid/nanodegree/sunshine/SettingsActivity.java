@@ -3,6 +3,7 @@ package nonandroid.nanodegree.sunshine;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -19,6 +20,18 @@ import android.preference.PreferenceManager;
  */
 public class SettingsActivity extends PreferenceActivity
     implements Preference.OnPreferenceChangeListener {
+
+  public static String getLocation(Context context) {
+    return getSharedPreferences(context).getString(context.getString(R.string.pref_location), context.getString(R.string.pref_location_default));
+  }
+
+  public static String getUnit(Context context) {
+    return getSharedPreferences(context).getString(context.getString(R.string.pref_unit), context.getString(R.string.pref_unit_default));
+  }
+
+  public static SharedPreferences getSharedPreferences(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context);
+  }
 
   public static Intent getIntent(Context context) {
     return new Intent(context, SettingsActivity.class);
