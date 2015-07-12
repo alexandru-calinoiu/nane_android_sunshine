@@ -85,6 +85,10 @@ public class WeatherContract {
     public static Uri buildLocationUri(long id) {
       return ContentUris.withAppendedId(CONTENT_URI, id);
     }
+
+    public static Uri buildLocationWithCityNameUri(String cityName) {
+      return CONTENT_URI.buildUpon().appendQueryParameter(COLUMN_CITY_NAME, cityName).build();
+    }
   }
 
   /* Inner class that defines the table contents of the weather table */
