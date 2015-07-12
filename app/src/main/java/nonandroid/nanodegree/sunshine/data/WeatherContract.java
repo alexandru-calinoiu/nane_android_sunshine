@@ -47,9 +47,9 @@ public class WeatherContract {
     // Human readable location
     public static final String COLUMN_CITY_NAME = "city_name";
 
-    // Stores location so we can uniquely pinpoint the location on the map
-    public static final String COLUMN_CORD_LOG = "coord_log";
-    public static final String COLUMN_CORD_LAT = "coo rd_lat";
+    // Stores location so we can uniquely pinpoint the locati
+    public static final String COLUMN_COORD_LONG = "coord_log";
+    public static final String COLUMN_COORD_LAT = "coord_lat";
   }
 
   /* Inner class that defines the table contents of the weather table */
