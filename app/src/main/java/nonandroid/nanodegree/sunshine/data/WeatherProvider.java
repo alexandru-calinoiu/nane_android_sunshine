@@ -25,6 +25,8 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.webkit.URLUtil;
 
+import java.util.Queue;
+
 public class WeatherProvider extends ContentProvider {
 
   // The URI Matcher used by this content provider.
@@ -109,6 +111,18 @@ public class WeatherProvider extends ContentProvider {
     );
   }
 
+  private Cursor getWeather(String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    return getAll(WeatherContract.WeatherEntry.TABLE_NAME, projection, selection, selectionArgs, sortOrder);
+  }
+
+  private Cursor getLocations(String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    return getAll(WeatherContract.LocationEntry.TABLE_NAME, projection, selection, selectionArgs, sortOrder);
+  }
+
+  private Cursor getAll(String tableName, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    return mOpenHelper.getReadableDatabase().query(tableName, projection, selection, selectionArgs, null, null, sortOrder);
+  }
+
   /*
       Students: Here is where you need to create the UriMatcher. This UriMatcher will
       match each URI to the WEATHER, WEATHER_WITH_LOCATION, WEATHER_WITH_LOCATION_AND_DATE,
@@ -185,12 +199,12 @@ public class WeatherProvider extends ContentProvider {
       }
       // "weather"
       case WEATHER: {
-        retCursor = null;
+        retCursor = getWeather(projection, selection, selectionArgs, sortOrder);
         break;
       }
       // "location"
       case LOCATION: {
-        retCursor = null;
+        retCursor = getLocations(projection, selection, selectionArgs, sortOrder);
         break;
       }
 
