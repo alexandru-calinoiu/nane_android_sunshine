@@ -1,9 +1,11 @@
 package nonandroid.nanodegree.sunshine;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.CursorAdapter;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,12 +32,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import nonandroid.nanodegree.sunshine.data.WeatherContract;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
 
-  private ArrayAdapter<String> forecastAdapter;
+  private ForecastAdapter forecastAdapter;
 
   public ForecastFragment() {
   }
@@ -75,26 +79,22 @@ public class ForecastFragment extends Fragment {
     View view = inflater.inflate(R.layout.fragment_main, container, false);
 
 
-    ArrayList<String> forecasts = new ArrayList<>();
-    forecastAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, forecasts);
-    forecastAdapter.setNotifyOnChange(false);
+    final String locationSetting = Utility.getPreferredLocation(getActivity());
+    final String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+    Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting, System.currentTimeMillis());
+    Cursor cursor = getActivity().getContentResolver().query(weatherForLocationUri,
+        null, null, null, sortOrder);
+
+    forecastAdapter = new ForecastAdapter(getActivity(), cursor, 0);
 
     final ListView forecastListView = (ListView) view.findViewById(R.id.listView_forecast);
     forecastListView.setAdapter(forecastAdapter);
-
-    forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        String forecast = forecastAdapter.getItem(i);
-        startActivity(DetailActivity.getIntent(getActivity(), forecast));
-      }
-    });
 
     return view;
   }
 
   private void fetchForecast() {
-    new FetchWeatherTask(getActivity(), forecastAdapter).execute(getPostalCode());
+    new FetchWeatherTask(getActivity()).execute(getPostalCode());
   }
 
   private String getPostalCode() {
