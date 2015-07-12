@@ -8,10 +8,10 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.test.AndroidTestCase;
 
-import com.example.android.sunshine.app.utils.PollingCheck;
-
 import java.util.Map;
 import java.util.Set;
+
+import nonandroid.nanodegree.sunshine.utils.PollingCheck;
 
 /*
     Students: These are functions and some test data to make it easier to test your database and
