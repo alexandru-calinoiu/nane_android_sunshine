@@ -1,8 +1,13 @@
 package nonandroid.nanodegree.sunshine;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
@@ -16,9 +21,12 @@ import android.widget.TextView;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends Fragment {
+public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+  public static final int CURSOR_LOADER_ID = 42;
+  public static final String FORECAST_URI_KEY = "FORECAST_URI_KEY";
 
   private ShareActionProvider shareActionProvider;
+  private TextView textView;
 
   public DetailActivityFragment() {
   }
@@ -42,9 +50,28 @@ public class DetailActivityFragment extends Fragment {
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
-    String forecast = getActivity().getIntent().getDataString();
+    textView = (TextView) view.findViewById(R.id.textview_forecast);
 
-    TextView textView = (TextView) view.findViewById(R.id.textview_forecast);
+
+    Bundle bundle = new Bundle();
+    bundle.putString(FORECAST_URI_KEY, getActivity().getIntent().getDataString());
+    getLoaderManager().initLoader(CURSOR_LOADER_ID, bundle, this);
+
+    return view;
+  }
+
+  @Override
+  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    return new CursorLoader(getActivity(), Uri.parse(args.getString(FORECAST_URI_KEY)), ForecastFragment.FORECAST_COLUMNS, null, null, null);
+  }
+
+  @Override
+  public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    if (!data.moveToFirst()) {
+      return;
+    }
+
+    String forecast = ForecastAdapter.convertCursorRowToUXFormat(getActivity(), data);
     textView.setText(forecast);
 
     if (shareActionProvider != null) {
@@ -55,7 +82,10 @@ public class DetailActivityFragment extends Fragment {
       shareIntent.putExtra(Intent.EXTRA_TEXT, forecast + forecastHashTag);
       shareActionProvider.setShareIntent(shareIntent);
     }
+  }
 
-    return view;
+  @Override
+  public void onLoaderReset(Loader<Cursor> loader) {
+    textView.setText("");
   }
 }

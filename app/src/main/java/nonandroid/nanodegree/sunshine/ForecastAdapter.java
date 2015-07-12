@@ -15,30 +15,25 @@ import nonandroid.nanodegree.sunshine.data.WeatherContract;
  * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
  */
 public class ForecastAdapter extends CursorAdapter {
-  public ForecastAdapter(Context context, Cursor c, int flags) {
-    super(context, c, flags);
+
+  public static String convertCursorRowToUXFormat(Context context, Cursor cursor) {
+    String highAndLow = formatHighLows(
+        context,
+        cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP),
+        cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP));
+
+    return Utility.formatDate(cursor.getLong(ForecastFragment.COL_WEATHER_DATE)) +
+        " - " + cursor.getString(ForecastFragment.COL_WEATHER_DESC) +
+        " - " + highAndLow;
   }
 
-  /**
-   * Prepare the weather high/lows for presentation.
-   */
-  private String formatHighLows(double high, double low) {
-    boolean isMetric = Utility.isMetric(mContext);
+  private static String formatHighLows(Context context, double high, double low) {
+    boolean isMetric = Utility.isMetric(context);
     return Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
   }
 
-  /*
-    This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
-    string.
-   */
-  private String convertCursorRowToUXFormat(Cursor cursor) {
-    String highAndLow = formatHighLows(
-        cursor.getDouble(Utility.COL_WEATHER_MAX_TEMP),
-        cursor.getDouble(Utility.COL_WEATHER_MIN_TEMP));
-
-    return Utility.formatDate(cursor.getLong(Utility.COL_WEATHER_DATE)) +
-        " - " + cursor.getString(Utility.COL_WEATHER_DESC) +
-        " - " + highAndLow;
+  public ForecastAdapter(Context context, Cursor c, int flags) {
+    super(context, c, flags);
   }
 
   /*
@@ -58,6 +53,6 @@ public class ForecastAdapter extends CursorAdapter {
     // we'll keep the UI functional with a simple (and slow!) binding.
 
     TextView tv = (TextView)view;
-    tv.setText(convertCursorRowToUXFormat(cursor));
+    tv.setText(convertCursorRowToUXFormat(mContext, cursor));
   }
 }
