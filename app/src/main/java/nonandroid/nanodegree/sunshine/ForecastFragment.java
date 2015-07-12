@@ -25,7 +25,9 @@ import nonandroid.nanodegree.sunshine.data.WeatherContract;
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
   public static final int CURSOR_LOADER_ID = 42;
+
   private ForecastAdapter forecastAdapter;
+  private static String lastLocation = "";
 
   static final String[] FORECAST_COLUMNS = {
       // In this case the id needs to be fully qualified with a table name, since
@@ -60,7 +62,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
   @Override
   public void onStart() {
     super.onStart();
-    updateWeather();
+
+    String currentLocation = Utility.getPreferredLocation(getActivity());
+
+    if (!lastLocation.equals(currentLocation)) {
+      lastLocation = currentLocation;
+      updateWeather();
+    }
   }
 
   @Override
@@ -138,7 +146,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
   private void updateWeather() {
     FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-    String location = Utility.getPreferredLocation(getActivity());
-    weatherTask.execute(location);
+    weatherTask.execute(lastLocation);
   }
 }
