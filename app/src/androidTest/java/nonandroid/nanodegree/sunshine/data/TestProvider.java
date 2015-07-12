@@ -35,142 +35,142 @@ import nonandroid.nanodegree.sunshine.data.WeatherContract.WeatherEntry;
  */
 public class TestProvider extends AndroidTestCase {
 
-    public static final String LOG_TAG = TestProvider.class.getSimpleName();
+  public static final String LOG_TAG = TestProvider.class.getSimpleName();
 
-    /*
-       This helper function deletes all records from both database tables using the ContentProvider.
-       It also queries the ContentProvider to make sure that the database has been successfully
-       deleted, so it cannot be used until the Query and Delete functions have been written
-       in the ContentProvider.
+  /*
+     This helper function deletes all records from both database tables using the ContentProvider.
+     It also queries the ContentProvider to make sure that the database has been successfully
+     deleted, so it cannot be used until the Query and Delete functions have been written
+     in the ContentProvider.
 
-       Students: Replace the calls to deleteAllRecordsFromDB with this one after you have written
-       the delete functionality in the ContentProvider.
-     */
-    public void deleteAllRecordsFromProvider() {
-        mContext.getContentResolver().delete(
-                WeatherEntry.CONTENT_URI,
-                null,
-                null
-        );
-        mContext.getContentResolver().delete(
-                LocationEntry.CONTENT_URI,
-                null,
-                null
-        );
+     Students: Replace the calls to deleteAllRecordsFromDB with this one after you have written
+     the delete functionality in the ContentProvider.
+   */
+  public void deleteAllRecordsFromProvider() {
+    mContext.getContentResolver().delete(
+        WeatherEntry.CONTENT_URI,
+        null,
+        null
+    );
+    mContext.getContentResolver().delete(
+        LocationEntry.CONTENT_URI,
+        null,
+        null
+    );
 
-        Cursor cursor = mContext.getContentResolver().query(
-                WeatherEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
-        );
-        assertEquals("Error: Records not deleted from Weather table during delete", 0, cursor.getCount());
-        cursor.close();
+    Cursor cursor = mContext.getContentResolver().query(
+        WeatherEntry.CONTENT_URI,
+        null,
+        null,
+        null,
+        null
+    );
+    assertEquals("Error: Records not deleted from Weather table during delete", 0, cursor.getCount());
+    cursor.close();
 
-        cursor = mContext.getContentResolver().query(
-                LocationEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
-        );
-        assertEquals("Error: Records not deleted from Location table during delete", 0, cursor.getCount());
-        cursor.close();
+    cursor = mContext.getContentResolver().query(
+        LocationEntry.CONTENT_URI,
+        null,
+        null,
+        null,
+        null
+    );
+    assertEquals("Error: Records not deleted from Location table during delete", 0, cursor.getCount());
+    cursor.close();
+  }
+
+  /*
+     This helper function deletes all records from both database tables using the database
+     functions only.  This is designed to be used to reset the state of the database until the
+     delete functionality is available in the ContentProvider.
+   */
+  public void deleteAllRecordsFromDB() {
+    WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+    SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+    db.delete(WeatherEntry.TABLE_NAME, null, null);
+    db.delete(LocationEntry.TABLE_NAME, null, null);
+    db.close();
+  }
+
+  /*
+      Student: Refactor this function to use the deleteAllRecordsFromProvider functionality once
+      you have implemented delete functionality there.
+   */
+  public void deleteAllRecords() {
+    deleteAllRecordsFromDB();
+  }
+
+  // Since we want each test to start with a clean slate, run deleteAllRecords
+  // in setUp (called by the test runner before each test).
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    deleteAllRecords();
+  }
+
+  /*
+      This test checks to make sure that the content provider is registered correctly.
+      Students: Uncomment this test to make sure you've correctly registered the WeatherProvider.
+   */
+  public void testProviderRegistry() {
+    PackageManager pm = mContext.getPackageManager();
+
+    // We define the component name based on the package name from the context and the
+    // WeatherProvider class.
+    ComponentName componentName = new ComponentName(mContext.getPackageName(),
+        WeatherProvider.class.getName());
+    try {
+      // Fetch the provider info using the component name from the PackageManager
+      // This throws an exception if the provider isn't registered.
+      ProviderInfo providerInfo = pm.getProviderInfo(componentName, 0);
+
+      // Make sure that the registered authority matches the authority from the Contract.
+      assertEquals("Error: WeatherProvider registered with authority: " + providerInfo.authority +
+              " instead of authority: " + WeatherContract.CONTENT_AUTHORITY,
+          providerInfo.authority, WeatherContract.CONTENT_AUTHORITY);
+    } catch (PackageManager.NameNotFoundException e) {
+      // I guess the provider isn't registered correctly.
+      assertTrue("Error: WeatherProvider not registered at " + mContext.getPackageName(),
+          false);
     }
+  }
 
-    /*
-       This helper function deletes all records from both database tables using the database
-       functions only.  This is designed to be used to reset the state of the database until the
-       delete functionality is available in the ContentProvider.
-     */
-    public void deleteAllRecordsFromDB() {
-        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+  /*
+          This test doesn't touch the database.  It verifies that the ContentProvider returns
+          the correct type for each type of URI that it can handle.
+          Students: Uncomment this test to verify that your implementation of GetType is
+          functioning correctly.
+       */
+  public void testGetType() {
+    // content://nonandroid.nanodegree.sunshine/weather/
+    String type = mContext.getContentResolver().getType(WeatherEntry.CONTENT_URI);
+    // vnd.android.cursor.dir/nonandroid.nanodegree.sunshine/weather
+    assertEquals("Error: the WeatherEntry CONTENT_URI should return WeatherEntry.CONTENT_TYPE",
+        WeatherEntry.CONTENT_TYPE, type);
 
-        db.delete(WeatherEntry.TABLE_NAME, null, null);
-        db.delete(LocationEntry.TABLE_NAME, null, null);
-        db.close();
-    }
+    String testLocation = "94074";
+    // content://nonandroid.nanodegree.sunshine/weather/94074
+    type = mContext.getContentResolver().getType(
+        WeatherEntry.buildWeatherLocation(testLocation));
+    // vnd.android.cursor.dir/nonandroid.nanodegree.sunshine/weather
+    assertEquals("Error: the WeatherEntry CONTENT_URI with location should return WeatherEntry.CONTENT_TYPE",
+        WeatherEntry.CONTENT_TYPE, type);
 
-    /*
-        Student: Refactor this function to use the deleteAllRecordsFromProvider functionality once
-        you have implemented delete functionality there.
-     */
-    public void deleteAllRecords() {
-        deleteAllRecordsFromDB();
-    }
+    long testDate = 1419120000L; // December 21st, 2014
+    // content://nonandroid.nanodegree.sunshine/weather/94074/20140612
+    type = mContext.getContentResolver().getType(
+        WeatherEntry.buildWeatherLocationWithDate(testLocation, testDate));
+    // vnd.android.cursor.item/nonandroid.nanodegree.sunshine/weather/1419120000
+    assertEquals("Error: the WeatherEntry CONTENT_URI with location and date should return WeatherEntry.CONTENT_ITEM_TYPE",
+        WeatherEntry.CONTENT_ITEM_TYPE, type);
 
-    // Since we want each test to start with a clean slate, run deleteAllRecords
-    // in setUp (called by the test runner before each test).
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        deleteAllRecords();
-    }
-
-    /*
-        This test checks to make sure that the content provider is registered correctly.
-        Students: Uncomment this test to make sure you've correctly registered the WeatherProvider.
-     */
-    public void testProviderRegistry() {
-        PackageManager pm = mContext.getPackageManager();
-
-        // We define the component name based on the package name from the context and the
-        // WeatherProvider class.
-        ComponentName componentName = new ComponentName(mContext.getPackageName(),
-                WeatherProvider.class.getName());
-        try {
-            // Fetch the provider info using the component name from the PackageManager
-            // This throws an exception if the provider isn't registered.
-            ProviderInfo providerInfo = pm.getProviderInfo(componentName, 0);
-
-            // Make sure that the registered authority matches the authority from the Contract.
-            assertEquals("Error: WeatherProvider registered with authority: " + providerInfo.authority +
-                    " instead of authority: " + WeatherContract.CONTENT_AUTHORITY,
-                    providerInfo.authority, WeatherContract.CONTENT_AUTHORITY);
-        } catch (PackageManager.NameNotFoundException e) {
-            // I guess the provider isn't registered correctly.
-            assertTrue("Error: WeatherProvider not registered at " + mContext.getPackageName(),
-                    false);
-        }
-    }
-
-    /*
-            This test doesn't touch the database.  It verifies that the ContentProvider returns
-            the correct type for each type of URI that it can handle.
-            Students: Uncomment this test to verify that your implementation of GetType is
-            functioning correctly.
-         */
-//    public void testGetType() {
-//        // content://nonandroid.nanodegree.sunshine/weather/
-//        String type = mContext.getContentResolver().getType(WeatherEntry.CONTENT_URI);
-//        // vnd.android.cursor.dir/nonandroid.nanodegree.sunshine/weather
-//        assertEquals("Error: the WeatherEntry CONTENT_URI should return WeatherEntry.CONTENT_TYPE",
-//                WeatherEntry.CONTENT_TYPE, type);
-//
-//        String testLocation = "94074";
-//        // content://nonandroid.nanodegree.sunshine/weather/94074
-//        type = mContext.getContentResolver().getType(
-//                WeatherEntry.buildWeatherLocation(testLocation));
-//        // vnd.android.cursor.dir/nonandroid.nanodegree.sunshine/weather
-//        assertEquals("Error: the WeatherEntry CONTENT_URI with location should return WeatherEntry.CONTENT_TYPE",
-//                WeatherEntry.CONTENT_TYPE, type);
-//
-//        long testDate = 1419120000L; // December 21st, 2014
-//        // content://nonandroid.nanodegree.sunshine/weather/94074/20140612
-//        type = mContext.getContentResolver().getType(
-//                WeatherEntry.buildWeatherLocationWithDate(testLocation, testDate));
-//        // vnd.android.cursor.item/nonandroid.nanodegree.sunshine/weather/1419120000
-//        assertEquals("Error: the WeatherEntry CONTENT_URI with location and date should return WeatherEntry.CONTENT_ITEM_TYPE",
-//                WeatherEntry.CONTENT_ITEM_TYPE, type);
-//
-//        // content://nonandroid.nanodegree.sunshine/location/
-//        type = mContext.getContentResolver().getType(LocationEntry.CONTENT_URI);
-//        // vnd.android.cursor.dir/nonandroid.nanodegree.sunshine/location
-//        assertEquals("Error: the LocationEntry CONTENT_URI should return LocationEntry.CONTENT_TYPE",
-//                LocationEntry.CONTENT_TYPE, type);
-//    }
+    // content://nonandroid.nanodegree.sunshine/location/
+    type = mContext.getContentResolver().getType(LocationEntry.CONTENT_URI);
+    // vnd.android.cursor.dir/nonandroid.nanodegree.sunshine/location
+    assertEquals("Error: the LocationEntry CONTENT_URI should return LocationEntry.CONTENT_TYPE",
+        LocationEntry.CONTENT_TYPE, type);
+  }
 
 
     /*
@@ -297,11 +297,11 @@ public class TestProvider extends AndroidTestCase {
 //    }
 
 
-    // Make sure we can still delete after adding/updating stuff
-    //
-    // Student: Uncomment this test after you have completed writing the insert functionality
-    // in your provider.  It relies on insertions with testInsertReadProvider, so insert and
-    // query functionality must also be complete before this test can be used.
+  // Make sure we can still delete after adding/updating stuff
+  //
+  // Student: Uncomment this test after you have completed writing the insert functionality
+  // in your provider.  It relies on insertions with testInsertReadProvider, so insert and
+  // query functionality must also be complete before this test can be used.
 //    public void testInsertReadProvider() {
 //        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
 //
@@ -403,11 +403,11 @@ public class TestProvider extends AndroidTestCase {
 //                weatherCursor, weatherValues);
 //    }
 
-    // Make sure we can still delete after adding/updating stuff
-    //
-    // Student: Uncomment this test after you have completed writing the delete functionality
-    // in your provider.  It relies on insertions with testInsertReadProvider, so insert and
-    // query functionality must also be complete before this test can be used.
+  // Make sure we can still delete after adding/updating stuff
+  //
+  // Student: Uncomment this test after you have completed writing the delete functionality
+  // in your provider.  It relies on insertions with testInsertReadProvider, so insert and
+  // query functionality must also be complete before this test can be used.
 //    public void testDeleteRecords() {
 //        testInsertReadProvider();
 //
@@ -432,33 +432,34 @@ public class TestProvider extends AndroidTestCase {
 //    }
 
 
-    static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
-    static ContentValues[] createBulkInsertWeatherValues(long locationRowId) {
-        long currentTestDate = TestUtilities.TEST_DATE;
-        long millisecondsInADay = 1000*60*60*24;
-        ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
+  static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
 
-        for ( int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, currentTestDate+= millisecondsInADay ) {
-            ContentValues weatherValues = new ContentValues();
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, currentTestDate);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2 + 0.01 * (float) i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3 - 0.01 * (float) i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75 + i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65 - i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5 + 0.2 * (float) i);
-            weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);
-            returnContentValues[i] = weatherValues;
-        }
-        return returnContentValues;
+  static ContentValues[] createBulkInsertWeatherValues(long locationRowId) {
+    long currentTestDate = TestUtilities.TEST_DATE;
+    long millisecondsInADay = 1000 * 60 * 60 * 24;
+    ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
+
+    for (int i = 0; i < BULK_INSERT_RECORDS_TO_INSERT; i++, currentTestDate += millisecondsInADay) {
+      ContentValues weatherValues = new ContentValues();
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATE, currentTestDate);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2 + 0.01 * (float) i);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3 - 0.01 * (float) i);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75 + i);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65 - i);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5 + 0.2 * (float) i);
+      weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);
+      returnContentValues[i] = weatherValues;
     }
+    return returnContentValues;
+  }
 
-    // Student: Uncomment this test after you have completed writing the BulkInsert functionality
-    // in your provider.  Note that this test will work with the built-in (default) provider
-    // implementation, which just inserts records one-at-a-time, so really do implement the
-    // BulkInsert ContentProvider function.
+  // Student: Uncomment this test after you have completed writing the BulkInsert functionality
+  // in your provider.  Note that this test will work with the built-in (default) provider
+  // implementation, which just inserts records one-at-a-time, so really do implement the
+  // BulkInsert ContentProvider function.
 //    public void testBulkInsert() {
 //        // first, let's create a location value
 //        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
