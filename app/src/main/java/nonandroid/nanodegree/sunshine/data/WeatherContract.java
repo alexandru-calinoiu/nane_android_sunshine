@@ -37,8 +37,8 @@ public class WeatherContract {
   public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
   // Possible paths (appended to base content URI for possible URI's)
-  // For instance, content://com.example.android.sunshine.app/weather/ is a valid path for
-  // looking at weather data. content://com.example.android.sunshine.app/givemeroot/ will fail,
+  // For instance, content://nonandroid.nanodegree.sunshine/weather/ is a valid path for
+  // looking at weather data. content://nonandroid.nanodegree.sunshine/givemeroot/ will fail,
   // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
   // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
   public static final String PATH_WEATHER = "weather";
@@ -136,11 +136,10 @@ public class WeatherContract {
         Student: Fill in this buildWeatherLocation function
      */
     public static Uri buildWeatherLocation(String locationSetting) {
-      return null;
+      return CONTENT_URI.buildUpon().appendPath(locationSetting).build();
     }
 
-    public static Uri buildWeatherLocationWithStartDate(
-        String locationSetting, long startDate) {
+    public static Uri buildWeatherLocationWithStartDate(String locationSetting, long startDate) {
       long normalizedDate = normalizeDate(startDate);
       return CONTENT_URI.buildUpon().appendPath(locationSetting)
           .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
