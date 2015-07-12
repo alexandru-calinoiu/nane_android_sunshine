@@ -19,7 +19,6 @@ import android.widget.TextView;
 public class DetailActivityFragment extends Fragment {
 
   private ShareActionProvider shareActionProvider;
-  private final String forecastHashTag = " #SunshineApp";
 
   public DetailActivityFragment() {
   }
@@ -43,7 +42,7 @@ public class DetailActivityFragment extends Fragment {
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
-    String forecast = getActivity().getIntent().getStringExtra(DetailActivity.FORECAST_TEXT);
+    String forecast = getActivity().getIntent().getDataString();
 
     TextView textView = (TextView) view.findViewById(R.id.textview_forecast);
     textView.setText(forecast);
@@ -52,6 +51,7 @@ public class DetailActivityFragment extends Fragment {
       Intent shareIntent = new Intent(Intent.ACTION_SEND);
       shareIntent.setType("text/plain");
       shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+      String forecastHashTag = " #SunshineApp";
       shareIntent.putExtra(Intent.EXTRA_TEXT, forecast + forecastHashTag);
       shareActionProvider.setShareIntent(shareIntent);
     }

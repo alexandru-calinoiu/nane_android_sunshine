@@ -1,5 +1,6 @@
 package nonandroid.nanodegree.sunshine;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import nonandroid.nanodegree.sunshine.data.WeatherContract;
@@ -74,6 +76,18 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     final ListView forecastListView = (ListView) view.findViewById(R.id.listView_forecast);
     forecastListView.setAdapter(forecastAdapter);
 
+    forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+
+        if (cursor != null) {
+          Intent intent = DetailActivity.getIntent(getActivity(), cursor.getLong(Utility.COL_WEATHER_DATE));
+          startActivity(intent);
+        }
+      }
+    });
+
     return view;
   }
 
@@ -83,7 +97,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     final String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
     Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(location, System.currentTimeMillis());
 
-    return new CursorLoader(getActivity(), weatherForLocationUri, null, null, null, sortOrder);
+    return new CursorLoader(getActivity(), weatherForLocationUri, Utility.FORECAST_COLUMNS, null, null, sortOrder);
   }
 
   @Override
