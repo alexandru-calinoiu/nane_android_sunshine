@@ -27,7 +27,14 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
   public static final String FORECAST_URI_KEY = "FORECAST_URI_KEY";
 
   private ShareActionProvider shareActionProvider;
-  private TextView textView;
+  private TextView dayView;
+  private TextView dateView;
+  private TextView minView;
+  private TextView maxView;
+  private TextView forecastView;
+  private TextView humidityView;
+  private TextView windView;
+  private TextView pressureView;
 
   public DetailActivityFragment() {
   }
@@ -51,8 +58,14 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
-    textView = (TextView) view.findViewById(R.id.textview_forecast);
-
+    dayView = (TextView) view.findViewById(R.id.details_day_textview);
+    dateView = (TextView) view.findViewById(R.id.details_date_textview);
+    minView = (TextView) view.findViewById(R.id.details_min_textview);
+    maxView = (TextView) view.findViewById(R.id.details_max_textview);
+    forecastView = (TextView) view.findViewById(R.id.details_forecast_textview);
+    humidityView = (TextView) view.findViewById(R.id.details_humidity_textview);
+    windView = (TextView) view.findViewById(R.id.details_wind_textview);
+    pressureView = (TextView) view.findViewById(R.id.details_pressure_textview);
 
     Bundle bundle = new Bundle();
     bundle.putString(FORECAST_URI_KEY, getActivity().getIntent().getDataString());
@@ -72,9 +85,28 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
       return;
     }
 
-    String forecast = convertCursorRowToUXFormat(getActivity(), data);
-    textView.setText(forecast);
+    final Context context = getActivity();
 
+    long date = data.getLong(ForecastFragment.COL_WEATHER_DATE);
+    dayView.setText(Utility.getDayName(context, date));
+    dateView.setText(Utility.getFormattedMonthDay(context, date));
+
+    final boolean isMetric = SettingsActivity.isMetric(context);
+
+    minView.setText(Utility.formatTemperature(context, data.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP), isMetric));
+    maxView.setText(Utility.formatTemperature(context, data.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP), isMetric));
+
+    final String forecast = data.getString(ForecastFragment.COL_WEATHER_DESC);
+    forecastView.setText(forecast);
+
+    humidityView.setText(context.getString(R.string.format_humidity, data.getFloat(ForecastFragment.COL_HUMIDITY)));
+    windView.setText(Utility.getFormattedWind(context, data.getFloat(ForecastFragment.COL_WIND), data.getFloat(ForecastFragment.COL_DEGRESS)));
+    pressureView.setText(context.getString(R.string.format_pressure, data.getFloat(ForecastFragment.COL_PRESSURE)));
+
+    setSharedIntent(forecast);
+  }
+
+  private void setSharedIntent(String forecast) {
     if (shareActionProvider != null) {
       Intent shareIntent = new Intent(Intent.ACTION_SEND);
       shareIntent.setType("text/plain");
@@ -87,22 +119,6 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
   @Override
   public void onLoaderReset(Loader<Cursor> loader) {
-    textView.setText("");
-  }
-
-  public String convertCursorRowToUXFormat(Context context, Cursor cursor) {
-    String highAndLow = formatHighLows(
-        context,
-        cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP),
-        cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP));
-
-    return Utility.formatDate(cursor.getLong(ForecastFragment.COL_WEATHER_DATE)) +
-        " - " + cursor.getString(ForecastFragment.COL_WEATHER_DESC) +
-        " - " + highAndLow;
-  }
-
-  private String formatHighLows(Context context, double high, double low) {
-    boolean isMetric = Utility.isMetric(context);
-    return Utility.formatTemperature(context, high, isMetric) + "/" + Utility.formatTemperature(context, low, isMetric);
+    // ignore
   }
 }
