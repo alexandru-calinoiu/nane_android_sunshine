@@ -29,6 +29,11 @@ public class SettingsActivity extends PreferenceActivity
     return getSharedPreferences(context).getString(context.getString(R.string.pref_unit), context.getString(R.string.pref_unit_default));
   }
 
+  public static Boolean isMetric(Context context) {
+    String metric = context.getString(R.string.pref_unit_default);
+    return getSharedPreferences(context).getString(context.getString(R.string.pref_unit), context.getString(R.string.pref_unit_default)).equals(metric);
+  }
+
   public static SharedPreferences getSharedPreferences(Context context) {
     return PreferenceManager.getDefaultSharedPreferences(context);
   }
