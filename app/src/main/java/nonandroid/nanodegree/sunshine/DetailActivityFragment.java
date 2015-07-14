@@ -1,5 +1,6 @@
 package nonandroid.nanodegree.sunshine;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -71,7 +72,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
       return;
     }
 
-    String forecast = ForecastAdapter.convertCursorRowToUXFormat(getActivity(), data);
+    String forecast = convertCursorRowToUXFormat(getActivity(), data);
     textView.setText(forecast);
 
     if (shareActionProvider != null) {
@@ -87,5 +88,21 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
   @Override
   public void onLoaderReset(Loader<Cursor> loader) {
     textView.setText("");
+  }
+
+  public String convertCursorRowToUXFormat(Context context, Cursor cursor) {
+    String highAndLow = formatHighLows(
+        context,
+        cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP),
+        cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP));
+
+    return Utility.formatDate(cursor.getLong(ForecastFragment.COL_WEATHER_DATE)) +
+        " - " + cursor.getString(ForecastFragment.COL_WEATHER_DESC) +
+        " - " + highAndLow;
+  }
+
+  private String formatHighLows(Context context, double high, double low) {
+    boolean isMetric = Utility.isMetric(context);
+    return Utility.formatTemperature(context, high, isMetric) + "/" + Utility.formatTemperature(context, low, isMetric);
   }
 }

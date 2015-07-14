@@ -43,22 +43,6 @@ public class ForecastAdapter extends CursorAdapter {
     }
   }
 
-  public static String convertCursorRowToUXFormat(Context context, Cursor cursor) {
-    String highAndLow = formatHighLows(
-        context,
-        cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP),
-        cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP));
-
-    return Utility.formatDate(cursor.getLong(ForecastFragment.COL_WEATHER_DATE)) +
-        " - " + cursor.getString(ForecastFragment.COL_WEATHER_DESC) +
-        " - " + highAndLow;
-  }
-
-  private static String formatHighLows(Context context, double high, double low) {
-    boolean isMetric = Utility.isMetric(context);
-    return Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
-  }
-
   public ForecastAdapter(Context context, Cursor c, int flags) {
     super(context, c, flags);
   }
@@ -96,7 +80,7 @@ public class ForecastAdapter extends CursorAdapter {
 
     final boolean isMetric = SettingsActivity.isMetric(context);
 
-    viewHolder.highTempView.setText(Utility.formatTemperature(cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP), isMetric));
-    viewHolder.lowTempView.setText(Utility.formatTemperature(cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP), isMetric));
+    viewHolder.highTempView.setText(Utility.formatTemperature(context, cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP), isMetric));
+    viewHolder.lowTempView.setText(Utility.formatTemperature(context, cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP), isMetric));
   }
 }
