@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -35,6 +36,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
   private TextView humidityView;
   private TextView windView;
   private TextView pressureView;
+  private ImageView iconView;
 
   public DetailActivityFragment() {
   }
@@ -66,6 +68,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     humidityView = (TextView) view.findViewById(R.id.details_humidity_textview);
     windView = (TextView) view.findViewById(R.id.details_wind_textview);
     pressureView = (TextView) view.findViewById(R.id.details_pressure_textview);
+    iconView = (ImageView) view.findViewById(R.id.details_icon_imageview);
 
     Bundle bundle = new Bundle();
     bundle.putString(FORECAST_URI_KEY, getActivity().getIntent().getDataString());
@@ -102,6 +105,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     humidityView.setText(context.getString(R.string.format_humidity, data.getFloat(ForecastFragment.COL_HUMIDITY)));
     windView.setText(Utility.getFormattedWind(context, data.getFloat(ForecastFragment.COL_WIND), data.getFloat(ForecastFragment.COL_DEGRESS)));
     pressureView.setText(context.getString(R.string.format_pressure, data.getFloat(ForecastFragment.COL_PRESSURE)));
+
+    iconView.setImageResource(Utility.getArtResourceForWeatherCondition(data.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
 
     setSharedIntent(forecast);
   }

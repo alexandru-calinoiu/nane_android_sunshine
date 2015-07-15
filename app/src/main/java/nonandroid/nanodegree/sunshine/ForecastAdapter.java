@@ -82,5 +82,10 @@ public class ForecastAdapter extends CursorAdapter {
 
     viewHolder.highTempView.setText(Utility.formatTemperature(context, cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP), isMetric));
     viewHolder.lowTempView.setText(Utility.formatTemperature(context, cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP), isMetric));
+
+    int conditionId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
+    int imageResourceId = getItemViewType(cursor.getPosition()) == VIEW_TYPE_TODAY ? Utility.getArtResourceForWeatherCondition(conditionId) : Utility.getIconResourceForWeatherCondition(conditionId);
+
+    viewHolder.iconView.setImageResource(imageResourceId);
   }
 }
