@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import nonandroid.nanodegree.sunshine.data.WeatherContract;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -37,6 +39,12 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
   private TextView windView;
   private TextView pressureView;
   private ImageView iconView;
+
+  public static void addToLayout(android.support.v4.app.FragmentManager fragmentManager) {
+    fragmentManager.beginTransaction()
+        .add(R.id.weather_detail_container, new DetailActivityFragment())
+        .commit();
+  }
 
   public DetailActivityFragment() {
   }
@@ -79,7 +87,16 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    return new CursorLoader(getActivity(), Uri.parse(args.getString(FORECAST_URI_KEY)), ForecastFragment.FORECAST_COLUMNS, null, null, null);
+    String forecastUri = args.getString(FORECAST_URI_KEY);
+    Uri uri;
+
+    if (forecastUri == null) {
+      uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate("Sibiu", 1437339600000L);
+    } else {
+      uri = Uri.parse(forecastUri);
+    }
+
+    return new CursorLoader(getActivity(), uri, ForecastFragment.FORECAST_COLUMNS, null, null, null);
   }
 
   @Override

@@ -10,10 +10,22 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+  private boolean twoPanel;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    if (findViewById(R.id.weather_detail_container) != null) {
+      twoPanel = true;
+
+      if (savedInstanceState == null) {
+        DetailActivityFragment.addToLayout(getSupportFragmentManager());
+      } else {
+        twoPanel = false;
+      }
+    }
   }
 
   @Override
