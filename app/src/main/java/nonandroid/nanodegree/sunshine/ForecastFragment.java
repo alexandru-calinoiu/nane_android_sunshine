@@ -1,6 +1,5 @@
 package nonandroid.nanodegree.sunshine;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,8 +28,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
   private static final String POSITION = "POSITION";
 
   private static String lastLocation = "";
-  private ForecastAdapter forecastAdapter;
-  private int lastPosition;
 
   static final String[] FORECAST_COLUMNS = {
       // In this case the id needs to be fully qualified with a table name, since
@@ -69,7 +66,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
   static final int COL_WIND = 10;
   static final int COL_DEGRESS = 11;
   static final int COL_PRESSURE = 12;
+
   private ListView forecastListView;
+  private ForecastAdapter forecastAdapter;
+  private int lastPosition;
 
   public interface Callback {
     void onItemSelected(Uri foreCastUri);
@@ -153,6 +153,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     });
 
     return view;
+  }
+
+  public void setSinglePane(boolean singlePane) {
+    forecastAdapter.setShowToday(singlePane);
   }
 
   @Override

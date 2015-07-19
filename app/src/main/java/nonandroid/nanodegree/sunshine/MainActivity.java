@@ -3,6 +3,7 @@ package nonandroid.nanodegree.sunshine;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -28,8 +29,22 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             .commit();
       } else {
         twoPanel = false;
+
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+          supportActionBar.setElevation(0);
+        }
       }
     }
+
+    ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+    forecastFragment.setSinglePane(!twoPanel);
+  }
+
+  @Override
+  protected void onPostResume() {
+    super.onPostResume();
+    twoPanel = findViewById(R.id.weather_detail_container) != null;
   }
 
   @Override

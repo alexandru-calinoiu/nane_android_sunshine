@@ -22,10 +22,13 @@ public class ForecastAdapter extends CursorAdapter {
   private static final int VIEW_TYPE_FUTURE_DAY = 1;
   private static final int VIEW_TYPE_COUNT = 2;
 
+
   private static final SparseIntArray layout = new SparseIntArray() {{
     put(VIEW_TYPE_TODAY, R.layout.list_item_forecast_today);
     put(VIEW_TYPE_FUTURE_DAY, R.layout.list_item_forecast);
   }};
+
+  private boolean showToday = true;
 
   public static class ViewHolder {
     public final ImageView iconView;
@@ -47,9 +50,13 @@ public class ForecastAdapter extends CursorAdapter {
     super(context, c, flags);
   }
 
+  public void setShowToday(boolean showToday) {
+    this.showToday = showToday;
+  }
+
   @Override
   public int getItemViewType(int position) {
-    return position == 0 ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+    return (position == 0 && showToday) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
   }
 
   @Override
