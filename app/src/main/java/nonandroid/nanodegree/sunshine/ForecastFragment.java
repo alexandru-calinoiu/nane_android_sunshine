@@ -26,8 +26,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
   public static final int CURSOR_LOADER_ID = 42;
 
-  private ForecastAdapter forecastAdapter;
+  private static final String POSITION = "POSITION";
+
   private static String lastLocation = "";
+  private ForecastAdapter forecastAdapter;
+  private int lastPosition;
 
   static final String[] FORECAST_COLUMNS = {
       // In this case the id needs to be fully qualified with a table name, since
@@ -66,6 +69,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
   static final int COL_WIND = 10;
   static final int COL_DEGRESS = 11;
   static final int COL_PRESSURE = 12;
+  private ListView forecastListView;
 
   public interface Callback {
     void onItemSelected(Uri foreCastUri);
@@ -81,6 +85,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
       lastLocation = currentLocation;
       updateWeather();
     }
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putInt(POSITION, lastPosition);
   }
 
   @Override
@@ -117,15 +127,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+    if (savedInstanceState != null) {
+      lastPosition = savedInstanceState.getInt(POSITION, 0);
+    }
+
     forecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
-    final ListView forecastListView = (ListView) view.findViewById(R.id.listView_forecast);
+    forecastListView = (ListView) view.findViewById(R.id.listView_forecast);
     forecastListView.setAdapter(forecastAdapter);
 
     forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+        lastPosition = position;
 
         if (cursor != null) {
           String locationSetting = Utility.getPreferredLocation(getActivity());
@@ -152,6 +167,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     forecastAdapter.swapCursor(cursor);
+    forecastListView.smoothScrollToPosition(lastPosition);
   }
 
   @Override
