@@ -11,10 +11,7 @@ import android.view.MenuItem;
 import nonandroid.nanodegree.sunshine.data.WeatherContract;
 
 public class DetailActivity extends AppCompatActivity {
-  public static Intent getIntent(Context context, Long date) {
-    String locationSetting = Utility.getPreferredLocation(context);
-    Uri forecastUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, date);
-
+  public static Intent getIntent(Context context, Uri forecastUri) {
     Intent intent = new Intent(context, DetailActivity.class);
     intent.setData(forecastUri);
     return intent;
@@ -26,7 +23,14 @@ public class DetailActivity extends AppCompatActivity {
     setContentView(R.layout.activity_detail);
 
     if (savedInstanceState == null) {
-      DetailActivityFragment.addToLayout(getSupportFragmentManager());
+      DetailActivityFragment detailActivityFragment = new DetailActivityFragment();
+      Bundle args = new Bundle();
+      args.putParcelable(DetailActivityFragment.FORECAST_URI_KEY, getIntent().getData());
+      detailActivityFragment.setArguments(args);
+
+      getSupportFragmentManager().beginTransaction()
+          .add(R.id.weather_detail_container, detailActivityFragment)
+          .commit();
     }
   }
 

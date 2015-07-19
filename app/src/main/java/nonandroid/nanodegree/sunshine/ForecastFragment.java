@@ -67,6 +67,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
   static final int COL_DEGRESS = 11;
   static final int COL_PRESSURE = 12;
 
+  public interface Callback {
+    void onItemSelected(Uri foreCastUri);
+  }
+
   @Override
   public void onStart() {
     super.onStart();
@@ -124,8 +128,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         Cursor cursor = (Cursor) parent.getItemAtPosition(position);
 
         if (cursor != null) {
-          Intent intent = DetailActivity.getIntent(getActivity(), cursor.getLong(COL_WEATHER_DATE));
-          startActivity(intent);
+          String locationSetting = Utility.getPreferredLocation(getActivity());
+          long date = cursor.getLong(COL_WEATHER_DATE);
+          Uri forecastUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, date);
+
+          ((Callback) getActivity()).onItemSelected(forecastUri);
         }
       }
     });

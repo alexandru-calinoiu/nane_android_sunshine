@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import nonandroid.nanodegree.sunshine.data.WeatherContract;
+import java.net.URI;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -39,12 +39,6 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
   private TextView windView;
   private TextView pressureView;
   private ImageView iconView;
-
-  public static void addToLayout(android.support.v4.app.FragmentManager fragmentManager) {
-    fragmentManager.beginTransaction()
-        .add(R.id.weather_detail_container, new DetailActivityFragment())
-        .commit();
-  }
 
   public DetailActivityFragment() {
   }
@@ -79,7 +73,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     iconView = (ImageView) view.findViewById(R.id.details_icon_imageview);
 
     Bundle bundle = new Bundle();
-    bundle.putString(FORECAST_URI_KEY, getActivity().getIntent().getDataString());
+    bundle.putParcelable(FORECAST_URI_KEY, getForecastUri());
     getLoaderManager().initLoader(CURSOR_LOADER_ID, bundle, this);
 
     return view;
@@ -87,16 +81,11 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    String forecastUri = args.getString(FORECAST_URI_KEY);
-    Uri uri;
-
-    if (forecastUri == null) {
-      uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate("Sibiu", 1437339600000L);
-    } else {
-      uri = Uri.parse(forecastUri);
+    if (args.getParcelable(FORECAST_URI_KEY) == null) {
+      return null;
     }
 
-    return new CursorLoader(getActivity(), uri, ForecastFragment.FORECAST_COLUMNS, null, null, null);
+    return new CursorLoader(getActivity(), (Uri) args.getParcelable(FORECAST_URI_KEY), ForecastFragment.FORECAST_COLUMNS, null, null, null);
   }
 
   @Override
@@ -142,5 +131,12 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
   @Override
   public void onLoaderReset(Loader<Cursor> loader) {
     // ignore
+  }
+
+  private Uri getForecastUri() {
+    if (getArguments() == null) {
+      return null;
+    }
+    return getArguments().getParcelable(FORECAST_URI_KEY);
   }
 }

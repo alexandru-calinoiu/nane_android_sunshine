@@ -2,13 +2,15 @@ package nonandroid.nanodegree.sunshine;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastFragment.Callback {
+
+  private static final String DETAILS_TAG = "DETAILS";
 
   private boolean twoPanel;
 
@@ -21,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
       twoPanel = true;
 
       if (savedInstanceState == null) {
-        DetailActivityFragment.addToLayout(getSupportFragmentManager());
+        getSupportFragmentManager().beginTransaction()
+            .add(R.id.weather_detail_container, new DetailActivityFragment(), DETAILS_TAG)
+            .commit();
       } else {
         twoPanel = false;
       }
@@ -60,5 +64,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     return super.onOptionsItemSelected(item);
+  }
+
+  @Override
+  public void onItemSelected(final Uri forecastUri) {
+    if (twoPanel) {
+      DetailActivityFragment fragment = new DetailActivityFragment();
+      Bundle bundle = new Bundle();
+      bundle.putParcelable(DetailActivityFragment.FORECAST_URI_KEY, forecastUri);
+      fragment.setArguments(bundle);
+
+      getSupportFragmentManager().beginTransaction()
+          .replace(R.id.weather_detail_container, fragment, DETAILS_TAG)
+          .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+          .commit();
+
+    } else {
+      Intent intent = DetailActivity.getIntent(this, forecastUri);
+      startActivity(intent);
+    }
   }
 }
